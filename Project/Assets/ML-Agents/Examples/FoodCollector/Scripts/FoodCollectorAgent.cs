@@ -1,8 +1,7 @@
-using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
-using Random = UnityEngine.Random;
+using UnityEngine;
 
 public class FoodCollectorAgent : Agent
 {
@@ -16,7 +15,9 @@ public class FoodCollectorAgent : Agent
     float m_FrozenTime;
     float m_EffectTime;
     Rigidbody m_AgentRb;
+
     float m_LaserLength;
+
     // Speed of agent rotation.
     public float turnSpeed = 300;
 
@@ -29,6 +30,7 @@ public class FoodCollectorAgent : Agent
     public GameObject myLaser;
     public bool contribute;
     public bool useVectorObs;
+
     [Tooltip("Use only the frozen flag in vector observations. If \"Use Vector Obs\" " +
              "is checked, this option has no effect. This option is necessary for the " +
              "VisualFoodCollector scene.")]
@@ -63,9 +65,9 @@ public class FoodCollectorAgent : Agent
 
     public Color32 ToColor(int hexVal)
     {
-        var r = (byte)((hexVal >> 16) & 0xFF);
-        var g = (byte)((hexVal >> 8) & 0xFF);
-        var b = (byte)(hexVal & 0xFF);
+        var r = (byte) ((hexVal >> 16) & 0xFF);
+        var g = (byte) ((hexVal >> 8) & 0xFF);
+        var b = (byte) (hexVal & 0xFF);
         return new Color32(r, g, b, 255);
     }
 
@@ -77,12 +79,14 @@ public class FoodCollectorAgent : Agent
         {
             Unfreeze();
         }
+
         if (Time.time > m_EffectTime + 0.5f)
         {
             if (m_Poisoned)
             {
                 Unpoison();
             }
+
             if (m_Satiated)
             {
                 Unsatiate();
@@ -112,6 +116,7 @@ public class FoodCollectorAgent : Agent
                 dirToGo *= 0.5f;
                 m_AgentRb.velocity *= 0.75f;
             }
+
             m_AgentRb.AddForce(dirToGo * moveSpeed, ForceMode.VelocityChange);
             transform.Rotate(rotateDir, Time.fixedDeltaTime * turnSpeed);
         }
@@ -196,18 +201,22 @@ public class FoodCollectorAgent : Agent
         {
             continuousActionsOut[2] = 1;
         }
+
         if (Input.GetKey(KeyCode.W))
         {
             continuousActionsOut[0] = 1;
         }
+
         if (Input.GetKey(KeyCode.A))
         {
             continuousActionsOut[2] = -1;
         }
+
         if (Input.GetKey(KeyCode.S))
         {
             continuousActionsOut[0] = -1;
         }
+
         var discreteActionsOut = actionsOut.DiscreteActions;
         discreteActionsOut[0] = Input.GetKey(KeyCode.Space) ? 1 : 0;
     }
@@ -221,8 +230,8 @@ public class FoodCollectorAgent : Agent
         m_AgentRb.velocity = Vector3.zero;
         myLaser.transform.localScale = new Vector3(0f, 0f, 0f);
         transform.position = new Vector3(Random.Range(-m_MyArea.range, m_MyArea.range),
-            2f, Random.Range(-m_MyArea.range, m_MyArea.range))
-            + area.transform.position;
+                                 2f, Random.Range(-m_MyArea.range, m_MyArea.range))
+                             + area.transform.position;
         transform.rotation = Quaternion.Euler(new Vector3(0f, Random.Range(0, 360)));
 
         SetResetParameters();
@@ -240,6 +249,7 @@ public class FoodCollectorAgent : Agent
                 m_FoodCollecterSettings.totalScore += 1;
             }
         }
+
         if (collision.gameObject.CompareTag("badFood"))
         {
             Poison();

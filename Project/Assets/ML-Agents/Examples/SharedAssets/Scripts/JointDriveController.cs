@@ -1,14 +1,15 @@
+using System;
 using System.Collections.Generic;
+using Unity.MLAgents;
 using UnityEngine;
 using UnityEngine.Serialization;
-using Unity.MLAgents;
 
 namespace Unity.MLAgentsExamples
 {
     /// <summary>
     /// Used to store relevant information for acting and learning for each body part in agent.
     /// </summary>
-    [System.Serializable]
+    [Serializable]
     public class BodyPart
     {
         [Header("Body Part Info")] [Space(10)] public ConfigurableJoint joint;
@@ -16,17 +17,15 @@ namespace Unity.MLAgentsExamples
         [HideInInspector] public Vector3 startingPos;
         [HideInInspector] public Quaternion startingRot;
 
-        [Header("Ground & Target Contact")]
-        [Space(10)]
+        [Header("Ground & Target Contact")] [Space(10)]
         public GroundContact groundContact;
 
         public TargetContact targetContact;
 
-        [FormerlySerializedAs("thisJDController")]
-        [HideInInspector] public JointDriveController thisJdController;
+        [FormerlySerializedAs("thisJDController")] [HideInInspector]
+        public JointDriveController thisJdController;
 
-        [Header("Current Joint Settings")]
-        [Space(10)]
+        [Header("Current Joint Settings")] [Space(10)]
         public Vector3 currentEularJointRotation;
 
         [HideInInspector] public float currentStrength;
@@ -34,8 +33,7 @@ namespace Unity.MLAgentsExamples
         public float currentYNormalizedRot;
         public float currentZNormalizedRot;
 
-        [Header("Other Debug Info")]
-        [Space(10)]
+        [Header("Other Debug Info")] [Space(10)]
         public Vector3 currentJointForce;
 
         public float currentJointForceSqrMag;
@@ -102,13 +100,14 @@ namespace Unity.MLAgentsExamples
 
     public class JointDriveController : MonoBehaviour
     {
-        [Header("Joint Drive Settings")]
-        [Space(10)]
+        [Header("Joint Drive Settings")] [Space(10)]
         public float maxJointSpring;
 
         public float jointDampen;
         public float maxJointForceLimit;
+#pragma warning disable 169
         float m_FacingDot;
+#pragma warning restore 169
 
         [HideInInspector] public Dictionary<Transform, BodyPart> bodyPartsDict = new Dictionary<Transform, BodyPart>();
 
