@@ -15,7 +15,7 @@ namespace Shooter.Scripts.Dummies
         private Collider _collider;
         private IShooterController _shooterController;
         private IAimController _aimController;
-        private GameObject _target;
+        protected GameObject _target;
 
         private void Start()
         {
