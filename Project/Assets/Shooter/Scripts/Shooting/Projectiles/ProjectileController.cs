@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-namespace Shooter.Scripts
+namespace Shooter.Scripts.Shooting.Projectiles
 {
     public class ProjectileController : MonoBehaviour
     {

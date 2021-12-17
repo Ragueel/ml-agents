@@ -1,4 +1,4 @@
-﻿namespace Shooter.Scripts
+﻿namespace Shooter.Scripts.Shooting.Projectiles
 {
     public struct ProjectileData
     {

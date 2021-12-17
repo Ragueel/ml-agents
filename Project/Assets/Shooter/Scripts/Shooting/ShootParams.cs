@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using Shooter.Scripts.Shooting.Projectiles;
+using UnityEngine;
 
-namespace Shooter.Scripts
+namespace Shooter.Scripts.Shooting
 {
     public class ShootParams
     {
