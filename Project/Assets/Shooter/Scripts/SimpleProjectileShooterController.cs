@@ -15,7 +15,7 @@ namespace Shooter.Scripts
         {
             var projectile = Object.Instantiate(_projectileControllerPrefab, shootParams.ShootPosition,
                 Quaternion.identity);
-
+            projectile.transform.forward = shootParams.ShootDirection;
             projectile.Setup(shootParams.ProjectileData);
         }
     }

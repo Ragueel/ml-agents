@@ -41,6 +41,7 @@ namespace Shooter.Scripts
             transform.localPosition = SpawnPointsController.Instance.GetRandomSpawnPoint();
 
             _agentStats.Reset();
+            GameMode.Instance.Reset();
         }
 
         public override void OnActionReceived(ActionBuffers actions)
@@ -60,12 +61,16 @@ namespace Shooter.Scripts
             float rotation = contActions[2];
 
             _rb.AddForce(controlSignal * _agentStats.MovementSpeed, ForceMode.Force);
-            _rb.AddTorque(new Vector3(0, rotation, 0));
+            _rb.AddTorque(new Vector3(0, rotation, 0), ForceMode.Force);
 
 
             var discreteActions = actions.DiscreteActions;
 
             bool isShoot = discreteActions[0] > 0;
+            if (isShoot)
+            {
+                print("Isshoot");
+            }
 
             if (_agentStats.CanShoot() &&
                 isShoot)
@@ -85,6 +90,12 @@ namespace Shooter.Scripts
             }
 
             _agentStats.Tick();
+
+            if (GameMode.Instance.IsFinished())
+            {
+                AddReward(2f);
+                EndEpisode();
+            }
         }
 
         public override void Heuristic(in ActionBuffers actionsOut)
@@ -92,12 +103,15 @@ namespace Shooter.Scripts
             var contActionsOut = actionsOut.ContinuousActions;
             contActionsOut[0] = Input.GetAxis("Horizontal");
             contActionsOut[1] = Input.GetAxis("Vertical");
-            contActionsOut[2] = Input.GetAxis("Mouse X");
+            contActionsOut[2] = Input.GetAxis("Horizontal_2");
+            var discreteActions = actionsOut.DiscreteActions;
+            discreteActions[0] = Input.GetButton("Fire1") ? 1 : 0;
         }
 
         public override void CollectObservations(VectorSensor sensor)
         {
-            sensor.AddObservation(transform.localPosition);
+            var localPosition = transform.localPosition;
+            sensor.AddObservation(localPosition);
 
             var forward = transform.forward;
             sensor.AddObservation(forward.x);
@@ -109,6 +123,18 @@ namespace Shooter.Scripts
             // Agent Stats
             sensor.AddObservation(_agentStats.IsDead());
             sensor.AddObservation(_agentStats.CanShoot());
+
+            var raycastData = _raycastObsCollector.CollectFor(new ObservationCollectionData
+            {
+                ForwardVector = forward,
+                Position = localPosition
+            });
+
+            foreach (var data in raycastData)
+            {
+                sensor.AddObservation(data.Distance);
+                sensor.AddObservation(data.HitType);
+            }
         }
 
         public void AddHitBonus()
@@ -183,6 +209,8 @@ namespace Shooter.Scripts
             {
                 agent.AddKillBonus();
             }
+
+            GameMode.Instance.RemoveAgent();
         }
     }
 
@@ -190,6 +218,17 @@ namespace Shooter.Scripts
     {
         public float Distance;
         public int HitType;
+    }
+
+    public static class Constants
+    {
+        public static class HitTypes
+        {
+            public const int None = 0;
+            public const int Agent = 1;
+            public const int Projectile = 2;
+            public const int Obstacle = 4;
+        }
     }
 
     public class RaycastObservationCollector
@@ -246,7 +285,7 @@ namespace Shooter.Scripts
             return directions;
         }
 
-        public void CollectFor(ObservationCollectionData observationCollectionData)
+        public RaycastData[] CollectFor(ObservationCollectionData observationCollectionData)
         {
             var vectors = GetRaycastVectors(observationCollectionData.ForwardVector);
 
@@ -271,17 +310,28 @@ namespace Shooter.Scripts
 
                 if (Physics.SphereCast(ray, _sphereCastRadius, out RaycastHit hit))
                 {
-                    // if ()
-                    // {
-                    // }
+                    if (hit.collider.CompareTag("agent"))
+                    {
+                        raycastData.HitType = Constants.HitTypes.Agent;
+                    }
+
+                    if (hit.collider.CompareTag("Projectile"))
+                    {
+                        raycastData.HitType = Constants.HitTypes.Projectile;
+                    }
+
+                    if (hit.collider.CompareTag("Obstacle"))
+                    {
+                        raycastData.HitType = Constants.HitTypes.Obstacle;
+                    }
+
+                    raycastData.Distance = Vector3.Distance(hit.point, observationCollectionData.Position);
                 }
 
                 resultRaycastData[i] = raycastData;
             }
 
-            foreach (var checkDirection in vectors)
-            {
-            }
+            return resultRaycastData;
         }
     }
 
