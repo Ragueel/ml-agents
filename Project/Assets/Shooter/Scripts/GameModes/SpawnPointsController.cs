@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Shooter.Scripts
+namespace Shooter.Scripts.GameModes
 {
     public class SpawnPointsController : MonoBehaviour
     {

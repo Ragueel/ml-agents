@@ -1,4 +1,7 @@
 ﻿using System.Linq;
+using Shooter.Scripts.GameModes;
+using Shooter.Scripts.Shooting;
+using Shooter.Scripts.Shooting.Projectiles;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
@@ -48,7 +51,7 @@ namespace Shooter.Scripts
 
             _agentStats.Reset();
 
-            GameMode.Instance.Reset();
+            ShooterGameMode.Instance.Reset();
         }
 
         public override void OnActionReceived(ActionBuffers actions)
@@ -59,19 +62,19 @@ namespace Shooter.Scripts
                 _timePassed = 0f;
 
                 AddReward(-1f);
-                GameMode.Instance.FinishEpisode();
+                ShooterGameMode.Instance.FinishEpisode();
 
                 return;
             }
 
-            if (GameMode.Instance.IsFinished())
+            if (ShooterGameMode.Instance.IsFinished())
             {
                 if (!_agentStats.IsDead())
                 {
                     AddReward(2f);
                 }
 
-                GameMode.Instance.FinishEpisode();
+                ShooterGameMode.Instance.FinishEpisode();
             }
 
             if (_agentStats.IsDead())
@@ -261,7 +264,7 @@ namespace Shooter.Scripts
                 agent.AddKillBonus();
             }
 
-            GameMode.Instance.RemoveAgent();
+            ShooterGameMode.Instance.RemoveAgent();
         }
     }
 

@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 
-namespace Shooter.Scripts
+namespace Shooter.Scripts.GameModes
 {
-    public class GameMode : MonoBehaviour
+    public class ShooterGameMode : MonoBehaviour
     {
         private int _agentCount = 0;
 
-        public static GameMode Instance { get; private set; }
+        public static ShooterGameMode Instance { get; private set; }
 
         private void Awake()
         {
