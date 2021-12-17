@@ -31,7 +31,7 @@ namespace Shooter.Scripts
         {
             if (other.collider.CompareTag("agent"))
             {
-                other.collider.gameObject.GetComponent<BaseShooterAgent>()?.TakeDamage(_projectileData);
+                other.collider.gameObject.GetComponent<IDamageable>()?.TakeDamage(_projectileData);
             }
 
             Destroy(gameObject);

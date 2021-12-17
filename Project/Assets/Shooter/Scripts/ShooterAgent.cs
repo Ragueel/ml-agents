@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Shooter.Scripts
 {
-    public class BaseShooterAgent : Agent
+    public class ShooterAgent : Agent, IDamageable
     {
         [SerializeField] private int _agentId;
         [SerializeField] private AgentStats _agentStats;
@@ -20,6 +20,7 @@ namespace Shooter.Scripts
         private Collider _collider;
         public int AgentId => _agentId;
         private IShooterController _shooterController;
+        private float _timePassed = 0;
 
         private void Start()
         {
@@ -40,12 +41,39 @@ namespace Shooter.Scripts
 
             transform.localPosition = SpawnPointsController.Instance.GetRandomSpawnPoint();
 
+            Debug.Log($"Episode begin {_agentId}");
+            _timePassed = 0f;
+            _rb.isKinematic = false;
+            _collider.enabled = true;
+
             _agentStats.Reset();
+
             GameMode.Instance.Reset();
         }
 
         public override void OnActionReceived(ActionBuffers actions)
         {
+            _timePassed += Time.fixedDeltaTime;
+            if (_timePassed > 60f)
+            {
+                _timePassed = 0f;
+
+                AddReward(-1f);
+                GameMode.Instance.FinishEpisode();
+
+                return;
+            }
+
+            if (GameMode.Instance.IsFinished())
+            {
+                if (!_agentStats.IsDead())
+                {
+                    AddReward(2f);
+                }
+
+                GameMode.Instance.FinishEpisode();
+            }
+
             if (_agentStats.IsDead())
             {
                 return;
@@ -61,15 +89,16 @@ namespace Shooter.Scripts
             float rotation = contActions[2];
 
             _rb.AddForce(controlSignal * _agentStats.MovementSpeed, ForceMode.Force);
-            _rb.AddTorque(new Vector3(0, rotation, 0), ForceMode.Force);
-
+            _rb.AddTorque(new Vector3(0, rotation * _agentStats.RotationSpeed, 0), ForceMode.Force);
 
             var discreteActions = actions.DiscreteActions;
 
             bool isShoot = discreteActions[0] > 0;
+
+
             if (isShoot)
             {
-                print("Isshoot");
+                print($"Isshoot: {discreteActions[0]}");
             }
 
             if (_agentStats.CanShoot() &&
@@ -90,12 +119,6 @@ namespace Shooter.Scripts
             }
 
             _agentStats.Tick();
-
-            if (GameMode.Instance.IsFinished())
-            {
-                AddReward(2f);
-                EndEpisode();
-            }
         }
 
         public override void Heuristic(in ActionBuffers actionsOut)
@@ -147,9 +170,9 @@ namespace Shooter.Scripts
             AddReward(Rewards.KillReward);
         }
 
-        private static BaseShooterAgent GetAgentWithId(int id)
+        private static ShooterAgent GetAgentWithId(int id)
         {
-            var agents = GameObject.FindGameObjectsWithTag("agent").Select(a => a.GetComponent<BaseShooterAgent>());
+            var agents = GameObject.FindGameObjectsWithTag("agent").Select(a => a.GetComponent<ShooterAgent>());
 
             foreach (var baseShooterAgent in agents)
             {
@@ -166,11 +189,31 @@ namespace Shooter.Scripts
         {
             if (_raycastObsCollector != null)
             {
-                _raycastObsCollector.CollectFor(new ObservationCollectionData
+                var collectedData = _raycastObsCollector.CollectFor(new ObservationCollectionData
                 {
                     ForwardVector = transform.forward,
                     Position = transform.position
                 });
+
+                foreach (var raycastData in collectedData)
+                {
+                    if (raycastData.HitType == Constants.HitTypes.Agent)
+                    {
+                        Gizmos.color = Color.red;
+                    }
+                    else if (raycastData.HitType == Constants.HitTypes.Projectile)
+                    {
+                        Gizmos.color = Color.blue;
+                    }
+                    else
+                    {
+                        Gizmos.color = Color.white;
+                    }
+
+                    Debug.DrawRay(raycastData.CheckPosition, raycastData.Direction * raycastData.Distance);
+                    Gizmos.DrawWireSphere(raycastData.CheckPosition + raycastData.Direction * raycastData.Distance,
+                        0.5f);
+                }
             }
         }
 
@@ -196,6 +239,14 @@ namespace Shooter.Scripts
             }
         }
 
+        private void OnCollisionEnter(Collision other)
+        {
+            if (other.collider.CompareTag("Obstacle"))
+            {
+                AddReward(-0.3f);
+            }
+        }
+
         private void Die(DieData dieData)
         {
             SetReward(-Rewards.KillReward);
@@ -214,10 +265,17 @@ namespace Shooter.Scripts
         }
     }
 
+    public interface IDamageable
+    {
+        void TakeDamage(ProjectileData projectileData);
+    }
+
     public struct RaycastData
     {
         public float Distance;
         public int HitType;
+        public Vector3 Direction;
+        public Vector3 CheckPosition;
     }
 
     public static class Constants
@@ -228,110 +286,6 @@ namespace Shooter.Scripts
             public const int Agent = 1;
             public const int Projectile = 2;
             public const int Obstacle = 4;
-        }
-    }
-
-    public class RaycastObservationCollector
-    {
-        private int _segments = 20;
-
-        private float _sphereCastRadius = 0.5f;
-
-        public static float CalculateAngle(Vector3 v, Vector3 forward, Vector3 axis, bool clockwise = false)
-        {
-            Vector3 right;
-            if (clockwise)
-            {
-                right = Vector3.Cross(forward, axis);
-                forward = Vector3.Cross(axis, right);
-            }
-            else
-            {
-                right = Vector3.Cross(axis, forward);
-                forward = Vector3.Cross(right, axis);
-            }
-
-            return Mathf.Atan2(Vector3.Dot(v, right), Vector3.Dot(v, forward)) * Mathf.Rad2Deg;
-        }
-
-        private Vector3[] GetRaycastVectors(Vector3 forwardVector)
-        {
-            Vector3[] directions = new Vector3[_segments];
-            float offsetAngle = Vector3.Angle(Vector3.right, forwardVector);
-
-            float anglePerSegment = 180f / _segments;
-            float tempAngle = 0;
-
-            for (int i = 0; i < _segments; i++)
-            {
-                float x;
-                float y;
-
-                float angle = (tempAngle + offsetAngle - 90);
-                if (forwardVector.z < 0f)
-                {
-                    angle *= -1f;
-                }
-
-                x = Mathf.Cos(angle * Mathf.Deg2Rad);
-                y = Mathf.Sin(angle * Mathf.Deg2Rad);
-                Vector3 direction = new Vector3(x, 0, y);
-
-                directions[i] = direction;
-
-                tempAngle += anglePerSegment;
-            }
-
-            return directions;
-        }
-
-        public RaycastData[] CollectFor(ObservationCollectionData observationCollectionData)
-        {
-            var vectors = GetRaycastVectors(observationCollectionData.ForwardVector);
-
-            Debug.DrawRay(observationCollectionData.Position, observationCollectionData.ForwardVector * 5, Color.green);
-
-            foreach (var vector3 in vectors)
-            {
-                Debug.DrawLine(observationCollectionData.Position,
-                    observationCollectionData.Position + vector3 * 5,
-                    Color.red);
-            }
-
-            RaycastData[] resultRaycastData = new RaycastData[_segments];
-
-            for (int i = 0; i < _segments; i++)
-            {
-                var raycastData = new RaycastData();
-                var checkDirection = vectors[i];
-
-                Vector3 offsetedOrigin = observationCollectionData.Position + checkDirection;
-                Ray ray = new Ray(offsetedOrigin, checkDirection);
-
-                if (Physics.SphereCast(ray, _sphereCastRadius, out RaycastHit hit))
-                {
-                    if (hit.collider.CompareTag("agent"))
-                    {
-                        raycastData.HitType = Constants.HitTypes.Agent;
-                    }
-
-                    if (hit.collider.CompareTag("Projectile"))
-                    {
-                        raycastData.HitType = Constants.HitTypes.Projectile;
-                    }
-
-                    if (hit.collider.CompareTag("Obstacle"))
-                    {
-                        raycastData.HitType = Constants.HitTypes.Obstacle;
-                    }
-
-                    raycastData.Distance = Vector3.Distance(hit.point, observationCollectionData.Position);
-                }
-
-                resultRaycastData[i] = raycastData;
-            }
-
-            return resultRaycastData;
         }
     }
 
