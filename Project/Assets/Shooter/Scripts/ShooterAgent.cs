@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Shooter.Scripts.GameModes;
+﻿using Shooter.Scripts.GameModes;
 using Shooter.Scripts.Shooting;
 using Shooter.Scripts.Shooting.Projectiles;
 using Unity.MLAgents;
@@ -45,6 +44,7 @@ namespace Shooter.Scripts
             transform.localPosition = SpawnPointsController.Instance.GetRandomSpawnPoint();
 
             Debug.Log($"Episode begin {_agentId}");
+
             _timePassed = 0f;
             _rb.isKinematic = false;
             _collider.enabled = true;
@@ -62,19 +62,9 @@ namespace Shooter.Scripts
                 _timePassed = 0f;
 
                 AddReward(-1f);
-                ShooterGameMode.Instance.FinishEpisode();
+                EndEpisode();
 
                 return;
-            }
-
-            if (ShooterGameMode.Instance.IsFinished())
-            {
-                if (!_agentStats.IsDead())
-                {
-                    AddReward(2f);
-                }
-
-                ShooterGameMode.Instance.FinishEpisode();
             }
 
             if (_agentStats.IsDead())
@@ -163,31 +153,6 @@ namespace Shooter.Scripts
             }
         }
 
-        public void AddHitBonus()
-        {
-            AddReward(Rewards.HitReward);
-        }
-
-        public void AddKillBonus()
-        {
-            AddReward(Rewards.KillReward);
-        }
-
-        private static ShooterAgent GetAgentWithId(int id)
-        {
-            var agents = GameObject.FindGameObjectsWithTag("agent").Select(a => a.GetComponent<ShooterAgent>());
-
-            foreach (var baseShooterAgent in agents)
-            {
-                if (baseShooterAgent.AgentId == id)
-                {
-                    return baseShooterAgent;
-                }
-            }
-
-            return null;
-        }
-
         private void OnDrawGizmos()
         {
             if (_raycastObsCollector != null)
@@ -222,13 +187,6 @@ namespace Shooter.Scripts
 
         public void TakeDamage(ProjectileData projectileData)
         {
-            var agent = GetAgentWithId(projectileData.AuthorId);
-
-            if (agent)
-            {
-                agent.AddHitBonus();
-            }
-
             _agentStats.CurrentHp -= projectileData.DamageAmount;
 
             AddReward(-Rewards.HitReward);
@@ -257,44 +215,7 @@ namespace Shooter.Scripts
             _rb.isKinematic = true;
             _collider.enabled = false;
 
-            var agent = GetAgentWithId(dieData.KillerId);
-
-            if (agent)
-            {
-                agent.AddKillBonus();
-            }
-
-            ShooterGameMode.Instance.RemoveAgent();
+            EndEpisode();
         }
-    }
-
-    public interface IDamageable
-    {
-        void TakeDamage(ProjectileData projectileData);
-    }
-
-    public struct RaycastData
-    {
-        public float Distance;
-        public int HitType;
-        public Vector3 Direction;
-        public Vector3 CheckPosition;
-    }
-
-    public static class Constants
-    {
-        public static class HitTypes
-        {
-            public const int None = 0;
-            public const int Agent = 1;
-            public const int Projectile = 2;
-            public const int Obstacle = 4;
-        }
-    }
-
-    public class ObservationCollectionData
-    {
-        public Vector3 Position;
-        public Vector3 ForwardVector;
     }
 }
