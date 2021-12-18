@@ -74,25 +74,17 @@ namespace Shooter.Scripts
 
             var contActions = actions.ContinuousActions;
 
-            Vector3 controlSignal = Vector3.zero;
 
-            controlSignal.x = contActions[0];
-            controlSignal.z = contActions[1];
+            float movement = contActions[0];
+            float rotation = contActions[1];
 
-            float rotation = contActions[2];
-
-            _rb.AddForce(controlSignal * _agentStats.MovementSpeed, ForceMode.Force);
-            _rb.AddTorque(new Vector3(0, rotation * _agentStats.RotationSpeed, 0), ForceMode.Force);
+            _rb.AddForce(transform.forward * (_agentStats.MovementSpeed * movement), ForceMode.Force);
+            transform.Rotate(0, rotation * _agentStats.RotationSpeed, 0);
+            // _rb.AddTorque(new Vector3(0, rotation * _agentStats.RotationSpeed, 0), ForceMode.Force);
 
             var discreteActions = actions.DiscreteActions;
 
             bool isShoot = discreteActions[0] > 0;
-
-
-            if (isShoot)
-            {
-                print($"Isshoot: {discreteActions[0]}");
-            }
 
             if (_agentStats.CanShoot() &&
                 isShoot)
@@ -117,9 +109,9 @@ namespace Shooter.Scripts
         public override void Heuristic(in ActionBuffers actionsOut)
         {
             var contActionsOut = actionsOut.ContinuousActions;
-            contActionsOut[0] = Input.GetAxis("Horizontal");
-            contActionsOut[1] = Input.GetAxis("Vertical");
-            contActionsOut[2] = Input.GetAxis("Horizontal_2");
+            contActionsOut[0] = Input.GetAxis("Vertical");
+            contActionsOut[1] = Input.GetAxis("Horizontal");
+
             var discreteActions = actionsOut.DiscreteActions;
             discreteActions[0] = Input.GetButton("Fire1") ? 1 : 0;
         }

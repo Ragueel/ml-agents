@@ -348,13 +348,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 785154436}
-  m_LocalRotation: {x: 0.24297927, y: -0, z: -0, w: 0.97003156}
-  m_LocalPosition: {x: 0, y: 5.56, z: -10}
+  m_LocalRotation: {x: 0.31895515, y: -0, z: -0, w: 0.9477699}
+  m_LocalPosition: {x: 0, y: 14.97, z: -20.21}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 28.125002, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 37.2, y: 0, z: 0}
 --- !u!1 &1067461180
 GameObject:
   m_ObjectHideFlags: 0
@@ -930,6 +930,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7731660155489328600, guid: 04a955d0d469c8743a596d682879269d,
+        type: 3}
+      propertyPath: _agentStats._shootDelay
+      value: 0.6
+      objectReference: {fileID: 0}
     - target: {fileID: 7731660155489328601, guid: 04a955d0d469c8743a596d682879269d,
         type: 3}
       propertyPath: m_BehaviorName
@@ -939,6 +944,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_BehaviorType
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7731660155489328601, guid: 04a955d0d469c8743a596d682879269d,
+        type: 3}
+      propertyPath: m_BrainParameters.m_ActionSpec.m_NumContinuousActions
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7731660155489328601, guid: 04a955d0d469c8743a596d682879269d,
         type: 3}
