@@ -6,5 +6,6 @@ namespace Shooter.Scripts
     {
         public Vector3 Position;
         public Vector3 ForwardVector;
+        public int Layer;
     }
 }

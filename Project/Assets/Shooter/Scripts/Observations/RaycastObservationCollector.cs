@@ -74,7 +74,8 @@ namespace Shooter.Scripts
                 raycastData.Direction = checkDirection;
                 raycastData.CheckPosition = offsetedOrigin;
 
-                if (Physics.SphereCast(ray, _sphereCastRadius, out RaycastHit hit))
+                if (Physics.SphereCast(ray, _sphereCastRadius, out RaycastHit hit, 500,
+                    observationCollectionData.Layer))
                 {
                     if (hit.collider.CompareTag("agent"))
                     {

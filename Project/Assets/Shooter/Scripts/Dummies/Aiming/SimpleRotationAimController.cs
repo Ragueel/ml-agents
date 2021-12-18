@@ -13,7 +13,7 @@ namespace Shooter.Scripts.Dummies.Aiming
 
         public void AimAt(Transform target)
         {
-            Vector3 difference = _parentTransform.position - target.position;
+            Vector3 difference = target.position - _parentTransform.position;
             _parentTransform.forward = difference.normalized;
         }
     }

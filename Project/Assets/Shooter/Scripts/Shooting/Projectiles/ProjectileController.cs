@@ -37,6 +37,11 @@ namespace Shooter.Scripts.Shooting.Projectiles
             Destroy(gameObject);
         }
 
+        public int GetOwnerId()
+        {
+            return _projectileData.AuthorId;
+        }
+
         private void FixedUpdate()
         {
             transform.position += transform.forward * _movementSpeed * Time.fixedDeltaTime;

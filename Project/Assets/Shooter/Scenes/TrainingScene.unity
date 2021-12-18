@@ -179,6 +179,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 560725b1c5e845fa8d70f05fc6d461ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _dummyPrefabs:
+  - {fileID: 1832397044411656373, guid: 468cbb25f51a4594998d9565b6125193, type: 3}
+  - {fileID: 6554279811839081403, guid: 2e96c2decd9437145ad0b5faba64ccde, type: 3}
+  - {fileID: 4724276028435501308, guid: 25defcf57634f86448c4c247cd17c15f, type: 3}
 --- !u!1 &763510482
 GameObject:
   m_ObjectHideFlags: 0
@@ -875,6 +879,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Agent
       objectReference: {fileID: 0}
+    - target: {fileID: 7731660155489328594, guid: 04a955d0d469c8743a596d682879269d,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 7731660155489328598, guid: 04a955d0d469c8743a596d682879269d,
         type: 3}
       propertyPath: m_RootOrder
@@ -933,7 +942,17 @@ PrefabInstance:
     - target: {fileID: 7731660155489328600, guid: 04a955d0d469c8743a596d682879269d,
         type: 3}
       propertyPath: _agentStats._shootDelay
-      value: 0.6
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7731660155489328600, guid: 04a955d0d469c8743a596d682879269d,
+        type: 3}
+      propertyPath: _agentStats._movementSpeed
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 7731660155489328600, guid: 04a955d0d469c8743a596d682879269d,
+        type: 3}
+      propertyPath: _agentStats._defaultDamageAmount
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 7731660155489328601, guid: 04a955d0d469c8743a596d682879269d,
         type: 3}
@@ -947,6 +966,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7731660155489328601, guid: 04a955d0d469c8743a596d682879269d,
         type: 3}
+      propertyPath: m_BrainParameters.VectorObservationSize
+      value: 109
+      objectReference: {fileID: 0}
+    - target: {fileID: 7731660155489328601, guid: 04a955d0d469c8743a596d682879269d,
+        type: 3}
       propertyPath: m_BrainParameters.m_ActionSpec.m_NumContinuousActions
       value: 2
       objectReference: {fileID: 0}
@@ -954,6 +978,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_BrainParameters.m_ActionSpec.BranchSizes.Array.data[0]
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7731660156421626462, guid: 04a955d0d469c8743a596d682879269d,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 7731660157167138473, guid: 04a955d0d469c8743a596d682879269d,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 7731660157378631969, guid: 04a955d0d469c8743a596d682879269d,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 04a955d0d469c8743a596d682879269d, type: 3}

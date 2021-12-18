@@ -1,4 +1,5 @@
 ﻿using Shooter.Scripts.Dummies.Aiming;
+using Shooter.Scripts.GameModes;
 using Shooter.Scripts.Shooting;
 using Shooter.Scripts.Shooting.Projectiles;
 using UnityEngine;
@@ -28,7 +29,7 @@ namespace Shooter.Scripts.Dummies
 
         public virtual void InitializeDummy()
         {
-            _target = GameObject.FindWithTag("agent");
+            _target = FindObjectOfType<ShooterAgent>().gameObject;
             _agentStats.Reset();
         }
 
@@ -84,6 +85,7 @@ namespace Shooter.Scripts.Dummies
             if (_agentStats.IsDead())
             {
                 shooterAgent.AddReward(Rewards.KillReward);
+                ShooterGameMode.Instance.RemoveAgent();
                 Destroy(gameObject);
             }
         }

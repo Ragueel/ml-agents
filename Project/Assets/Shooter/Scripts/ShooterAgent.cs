@@ -132,11 +132,23 @@ namespace Shooter.Scripts
             sensor.AddObservation(_agentStats.IsDead());
             sensor.AddObservation(_agentStats.CanShoot());
 
-            var raycastData = _raycastObsCollector.CollectFor(new ObservationCollectionData
+            var observationCollectionData = new ObservationCollectionData
             {
                 ForwardVector = forward,
-                Position = localPosition
-            });
+                Position = localPosition,
+                Layer = LayerMask.GetMask("Agents")
+            };
+
+            var raycastData = _raycastObsCollector.CollectFor(observationCollectionData);
+
+            foreach (var data in raycastData)
+            {
+                sensor.AddObservation(data.Distance);
+                sensor.AddObservation(data.HitType);
+            }
+
+            observationCollectionData.Layer = LayerMask.GetMask("Projectiles");
+            raycastData = _raycastObsCollector.CollectFor(observationCollectionData);
 
             foreach (var data in raycastData)
             {
@@ -152,7 +164,8 @@ namespace Shooter.Scripts
                 var collectedData = _raycastObsCollector.CollectFor(new ObservationCollectionData
                 {
                     ForwardVector = transform.forward,
-                    Position = transform.position
+                    Position = transform.position,
+                    Layer = LayerMask.GetMask("Agents")
                 });
 
                 foreach (var raycastData in collectedData)

@@ -15,10 +15,13 @@ namespace Shooter.Scripts.Dummies
         {
             var position = transform.position;
 
-            Vector3 direction = (position - _target.transform.position).normalized;
+            Vector3 direction = (_target.transform.position - position).normalized;
             position += direction * (Time.fixedDeltaTime * _agentStats.MovementSpeed);
 
-            transform.position = position;
+            if (Vector3.Distance(_target.transform.position, position) > 3f)
+            {
+                transform.position = position;
+            }
         }
     }
 }
