@@ -7,6 +7,7 @@ namespace Shooter.Scripts.GameModes
     public class ShooterGameMode : MonoBehaviour
     {
         [SerializeField] private BaseShooterDummy[] _dummyPrefabs;
+        [SerializeField] private bool _isTrainMode = true;
 
         private int _agentCount = 0;
 

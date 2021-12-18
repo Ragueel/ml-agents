@@ -180,8 +180,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _dummyPrefabs:
-  - {fileID: 1832397044411656373, guid: 468cbb25f51a4594998d9565b6125193, type: 3}
-  - {fileID: 6554279811839081403, guid: 2e96c2decd9437145ad0b5faba64ccde, type: 3}
+  - {fileID: 4724276028435501308, guid: 25defcf57634f86448c4c247cd17c15f, type: 3}
+  - {fileID: 4724276028435501308, guid: 25defcf57634f86448c4c247cd17c15f, type: 3}
   - {fileID: 4724276028435501308, guid: 25defcf57634f86448c4c247cd17c15f, type: 3}
 --- !u!1 &763510482
 GameObject:
@@ -956,18 +956,28 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7731660155489328601, guid: 04a955d0d469c8743a596d682879269d,
         type: 3}
+      propertyPath: m_Model
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7731660155489328601, guid: 04a955d0d469c8743a596d682879269d,
+        type: 3}
       propertyPath: m_BehaviorName
       value: BaseShooterAgent
       objectReference: {fileID: 0}
     - target: {fileID: 7731660155489328601, guid: 04a955d0d469c8743a596d682879269d,
         type: 3}
       propertyPath: m_BehaviorType
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7731660155489328601, guid: 04a955d0d469c8743a596d682879269d,
         type: 3}
       propertyPath: m_BrainParameters.VectorObservationSize
-      value: 109
+      value: 211
+      objectReference: {fileID: 0}
+    - target: {fileID: 7731660155489328601, guid: 04a955d0d469c8743a596d682879269d,
+        type: 3}
+      propertyPath: m_BrainParameters.NumStackedVectorObservations
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7731660155489328601, guid: 04a955d0d469c8743a596d682879269d,
         type: 3}
@@ -977,7 +987,7 @@ PrefabInstance:
     - target: {fileID: 7731660155489328601, guid: 04a955d0d469c8743a596d682879269d,
         type: 3}
       propertyPath: m_BrainParameters.m_ActionSpec.BranchSizes.Array.data[0]
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7731660156421626462, guid: 04a955d0d469c8743a596d682879269d,
         type: 3}

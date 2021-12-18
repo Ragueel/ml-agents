@@ -59,9 +59,7 @@ namespace Shooter.Scripts
             _timePassed += Time.fixedDeltaTime;
             if (_timePassed > 60f)
             {
-                _timePassed = 0f;
-
-                AddReward(-1f);
+                AddReward(-0.1f);
                 EndEpisode();
 
                 return;
@@ -80,15 +78,32 @@ namespace Shooter.Scripts
 
             _rb.AddForce(transform.forward * (_agentStats.MovementSpeed * movement), ForceMode.Force);
             transform.Rotate(0, rotation * _agentStats.RotationSpeed, 0);
-            // _rb.AddTorque(new Vector3(0, rotation * _agentStats.RotationSpeed, 0), ForceMode.Force);
+
+            Ray ray = new Ray(_shootPoint.position, _shootPoint.forward);
+
+            bool isAgentAhead = Physics.Raycast(ray, out RaycastHit hit, 60f, LayerMask.GetMask("Agents"));
+
+            if (isAgentAhead)
+            {
+                AddReward(0.001f * Time.fixedDeltaTime);
+            }
 
             var discreteActions = actions.DiscreteActions;
 
-            bool isShoot = discreteActions[0] > 0;
+            bool isShoot = discreteActions[0] == 2;
 
             if (_agentStats.CanShoot() &&
                 isShoot)
             {
+                if (isAgentAhead)
+                {
+                    AddReward(0.1f);
+                }
+                else
+                {
+                    AddReward(-0.01f);
+                }
+
                 _agentStats.LastShotTime = 0f;
 
                 _shooterController.Shoot(new ShootParams
@@ -113,7 +128,7 @@ namespace Shooter.Scripts
             contActionsOut[1] = Input.GetAxis("Horizontal");
 
             var discreteActions = actionsOut.DiscreteActions;
-            discreteActions[0] = Input.GetButton("Fire1") ? 1 : 0;
+            discreteActions[0] = Input.GetButton("Fire1") ? 2 : 1;
         }
 
         public override void CollectObservations(VectorSensor sensor)
@@ -122,8 +137,9 @@ namespace Shooter.Scripts
             sensor.AddObservation(localPosition);
 
             var forward = transform.forward;
-            sensor.AddObservation(forward.x);
-            sensor.AddObservation(forward.z);
+            sensor.AddObservation(forward);
+            sensor.AddObservation(transform.rotation.eulerAngles.y);
+            // sensor.AddObservation(forward.z);
 
             sensor.AddObservation(_rb.velocity.x);
             sensor.AddObservation(_rb.velocity.z);
@@ -134,27 +150,29 @@ namespace Shooter.Scripts
 
             var observationCollectionData = new ObservationCollectionData
             {
-                ForwardVector = forward,
+                ForwardVector = Vector3.forward,
                 Position = localPosition,
-                Layer = LayerMask.GetMask("Agents")
+                Layer = LayerMask.GetMask("Agents") | LayerMask.GetMask("Default")
             };
 
             var raycastData = _raycastObsCollector.CollectFor(observationCollectionData);
 
             foreach (var data in raycastData)
             {
-                sensor.AddObservation(data.Distance);
+                Vector3 dataCheckPosition = data.CheckPosition + data.Distance * data.Direction;
+                Debug.DrawRay(dataCheckPosition, Vector3.up * 4, Color.blue);
+                sensor.AddObservation(dataCheckPosition);
                 sensor.AddObservation(data.HitType);
             }
 
-            observationCollectionData.Layer = LayerMask.GetMask("Projectiles");
-            raycastData = _raycastObsCollector.CollectFor(observationCollectionData);
-
-            foreach (var data in raycastData)
-            {
-                sensor.AddObservation(data.Distance);
-                sensor.AddObservation(data.HitType);
-            }
+            // observationCollectionData.Layer = LayerMask.GetMask("Projectiles");
+            // raycastData = _raycastObsCollector.CollectFor(observationCollectionData);
+            //
+            // foreach (var data in raycastData)
+            // {
+            //     sensor.AddObservation(data.Distance);
+            //     sensor.AddObservation(data.HitType);
+            // }
         }
 
         private void OnDrawGizmos()
@@ -163,9 +181,9 @@ namespace Shooter.Scripts
             {
                 var collectedData = _raycastObsCollector.CollectFor(new ObservationCollectionData
                 {
-                    ForwardVector = transform.forward,
+                    ForwardVector = Vector3.forward,
                     Position = transform.position,
-                    Layer = LayerMask.GetMask("Agents")
+                    Layer = LayerMask.GetMask("Agents") | LayerMask.GetMask("Default")
                 });
 
                 foreach (var raycastData in collectedData)
@@ -194,10 +212,11 @@ namespace Shooter.Scripts
         {
             _agentStats.CurrentHp -= projectileData.DamageAmount;
 
-            AddReward(-Rewards.HitReward);
+            AddReward(-Rewards.HitReward * 0.05f);
 
             if (_agentStats.IsDead())
             {
+                print("died from bot");
                 Die(new DieData
                 {
                     KillerId = projectileData.AuthorId
@@ -215,7 +234,7 @@ namespace Shooter.Scripts
 
         private void Die(DieData dieData)
         {
-            SetReward(-Rewards.KillReward);
+            AddReward(-Rewards.KillReward * 0.1f);
 
             _rb.isKinematic = true;
             _collider.enabled = false;

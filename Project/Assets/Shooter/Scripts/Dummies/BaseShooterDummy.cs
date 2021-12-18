@@ -85,6 +85,7 @@ namespace Shooter.Scripts.Dummies
             if (_agentStats.IsDead())
             {
                 shooterAgent.AddReward(Rewards.KillReward);
+                print("Killed bot");
                 ShooterGameMode.Instance.RemoveAgent();
                 Destroy(gameObject);
             }

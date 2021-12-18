@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Shooter.Scripts.Shooting.Projectiles;
+using UnityEngine;
 
 namespace Shooter.Scripts
 {
@@ -84,7 +85,16 @@ namespace Shooter.Scripts
 
                     if (hit.collider.CompareTag("Projectile"))
                     {
-                        raycastData.HitType = Constants.HitTypes.Projectile;
+                        var projectileController = hit.collider.gameObject.GetComponent<ProjectileController>();
+
+                        if (projectileController.GetOwnerId() != 0)
+                        {
+                            raycastData.HitType = Constants.HitTypes.Projectile;
+                        }
+                        else
+                        {
+                            raycastData.HitType = Constants.HitTypes.None;
+                        }
                     }
 
                     if (hit.collider.CompareTag("Obstacle"))
