@@ -189,7 +189,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _agentStats:
     _maxHp: 20
-    _shootDelay: 1.1
+    _shootDelay: 1.6
     _defaultDamageAmount: 5
     _movementSpeed: 10
     _rotationSpeed: 10

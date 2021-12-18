@@ -69,7 +69,7 @@ namespace Shooter.Scripts
                 var raycastData = new RaycastData();
                 var checkDirection = vectors[i];
 
-                Vector3 offsetedOrigin = observationCollectionData.Position + checkDirection + Vector3.up * 0.5f;
+                Vector3 offsetedOrigin = observationCollectionData.Position + checkDirection + Vector3.up * 0.6f;
                 Ray ray = new Ray(offsetedOrigin, checkDirection);
 
                 raycastData.Direction = checkDirection;

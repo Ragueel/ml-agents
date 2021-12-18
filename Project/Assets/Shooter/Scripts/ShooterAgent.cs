@@ -85,7 +85,7 @@ namespace Shooter.Scripts
 
             if (isAgentAhead)
             {
-                AddReward(0.001f * Time.fixedDeltaTime);
+                AddReward(0.05f * Time.fixedDeltaTime);
             }
 
             var discreteActions = actions.DiscreteActions;
@@ -97,11 +97,11 @@ namespace Shooter.Scripts
             {
                 if (isAgentAhead)
                 {
-                    AddReward(0.1f);
+                    AddReward(0.05f);
                 }
                 else
                 {
-                    AddReward(-0.01f);
+                    AddReward(-0.005f);
                 }
 
                 _agentStats.LastShotTime = 0f;
@@ -165,12 +165,18 @@ namespace Shooter.Scripts
                 sensor.AddObservation(data.HitType);
             }
 
-            // observationCollectionData.Layer = LayerMask.GetMask("Projectiles");
+            observationCollectionData.Layer = LayerMask.GetMask("Projectiles") | LayerMask.GetMask("Default");
             // raycastData = _raycastObsCollector.CollectFor(observationCollectionData);
             //
             // foreach (var data in raycastData)
             // {
-            //     sensor.AddObservation(data.Distance);
+            //     Vector3 dataCheckPosition = data.CheckPosition + data.Distance * data.Direction;
+            //     if (data.HitType == Constants.HitTypes.Projectile)
+            //     {
+            //         Debug.DrawRay(dataCheckPosition, Vector3.up * 9, Color.red);
+            //     }
+            //
+            //     sensor.AddObservation(dataCheckPosition);
             //     sensor.AddObservation(data.HitType);
             // }
         }

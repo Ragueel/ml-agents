@@ -22,6 +22,11 @@ namespace Shooter.Scripts.GameModes
 
         public void Reset()
         {
+            if (!_isTrainMode)
+            {
+                return;
+            }
+
             foreach (var baseShooterDummy in _spawnedDummies)
             {
                 if (baseShooterDummy != null)

@@ -60,7 +60,7 @@ namespace Shooter.Scripts.Dummies
                 {
                     ProjectileData = new ProjectileData
                     {
-                        AuthorId = GetHashCode(),
+                        AuthorId = gameObject.GetHashCode(),
                         DamageAmount = _agentStats.DefaultDamageAmount
                     },
                     ShootDirection = _shootPoint.forward,
