@@ -7,6 +7,12 @@ namespace Shooter.Scripts
     {
         private int _segments = 50;
         private float _sphereCastRadius = 0.5f;
+        private int _agentId = 0;
+
+        public RaycastObservationCollector(int agentId)
+        {
+            _agentId = agentId;
+        }
 
         public static float CalculateAngle(Vector3 v, Vector3 forward, Vector3 axis, bool clockwise = false)
         {
@@ -87,7 +93,7 @@ namespace Shooter.Scripts
                     {
                         var projectileController = hit.collider.gameObject.GetComponent<ProjectileController>();
 
-                        if (projectileController.GetOwnerId() != 0)
+                        if (projectileController.GetOwnerId() != _agentId)
                         {
                             raycastData.HitType = Constants.HitTypes.Projectile;
                         }

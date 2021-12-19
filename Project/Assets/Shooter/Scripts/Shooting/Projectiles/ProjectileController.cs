@@ -6,6 +6,8 @@ namespace Shooter.Scripts.Shooting.Projectiles
     public class ProjectileController : MonoBehaviour
     {
         [SerializeField] private float _movementSpeed = 9f;
+        [SerializeField] private GameObject _explosionEffectPrefab;
+
         private ProjectileData _projectileData;
 
         private float _maxLifeTime = 5f;
@@ -32,6 +34,13 @@ namespace Shooter.Scripts.Shooting.Projectiles
             if (other.collider.CompareTag("agent"))
             {
                 other.collider.gameObject.GetComponent<IDamageable>()?.TakeDamage(_projectileData);
+            }
+
+            if (_explosionEffectPrefab != null)
+            {
+                var effect = Instantiate(_explosionEffectPrefab, transform.position, transform.rotation);
+                Debug.Log("Projectile effect");
+                Destroy(effect, 5f);
             }
 
             Destroy(gameObject);

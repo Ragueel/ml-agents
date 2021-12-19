@@ -16,6 +16,8 @@ namespace Shooter.Scripts
         [SerializeField] private ProjectileController _projectilePrefab;
         [SerializeField] private Transform _shootPoint;
         [SerializeField] private HealthBarController _healthBar;
+        [SerializeField] private bool _isTrainMode = false;
+        [SerializeField] private GameObject _deathEffect;
 
         private RaycastObservationCollector _raycastObsCollector;
 
@@ -27,7 +29,8 @@ namespace Shooter.Scripts
 
         private void Start()
         {
-            _raycastObsCollector = new RaycastObservationCollector();
+            _raycastObsCollector = new RaycastObservationCollector(_agentId);
+
             _rb = GetComponent<Rigidbody>();
             _collider = GetComponent<Collider>();
 
@@ -64,7 +67,14 @@ namespace Shooter.Scripts
             if (_timePassed > 60f)
             {
                 AddReward(-0.1f);
-                EndEpisode();
+                if (_isTrainMode)
+                {
+                    EndEpisode();
+                }
+                else
+                {
+                    ShooterGameMode.Instance.OnTimeOut();
+                }
 
                 return;
             }
@@ -143,7 +153,6 @@ namespace Shooter.Scripts
             var forward = transform.forward;
             sensor.AddObservation(forward);
             sensor.AddObservation(transform.rotation.eulerAngles.y);
-            // sensor.AddObservation(forward.z);
 
             sensor.AddObservation(_rb.velocity.x);
             sensor.AddObservation(_rb.velocity.z);
@@ -241,7 +250,21 @@ namespace Shooter.Scripts
             _rb.isKinematic = true;
             _collider.enabled = false;
 
-            EndEpisode();
+            if (_isTrainMode)
+            {
+                EndEpisode();
+            }
+            else
+            {
+                if (_deathEffect != null)
+                {
+                    var effect = Instantiate(_deathEffect, transform.position, transform.rotation);
+                    Destroy(effect, 5f);
+                }
+
+                ShooterGameMode.Instance.OnShooterAgentDeath();
+                Destroy(gameObject);
+            }
         }
     }
 }
