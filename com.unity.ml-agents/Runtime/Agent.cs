@@ -72,6 +72,7 @@ namespace Unity.MLAgents
             {
                 continuousActions[i] = actionBuffers.ContinuousActions[i];
             }
+
             var discreteActions = storedActions.DiscreteActions;
             for (var i = 0; i < actionBuffers.DiscreteActions.Length; i++)
             {
@@ -87,11 +88,12 @@ namespace Unity.MLAgents
     internal class AgentVectorActuator : VectorActuator
     {
         public AgentVectorActuator(IActionReceiver actionReceiver,
-                                   IHeuristicProvider heuristicProvider,
-                                   ActionSpec actionSpec,
-                                   string name = "VectorActuator"
+            IHeuristicProvider heuristicProvider,
+            ActionSpec actionSpec,
+            string name = "VectorActuator"
         ) : base(actionReceiver, heuristicProvider, actionSpec, name)
-        { }
+        {
+        }
 
         public override BuiltInActuatorType GetBuiltInActuatorType()
         {
@@ -192,7 +194,7 @@ namespace Unity.MLAgents
     ///
     /// </remarks>
     [HelpURL("https://github.com/Unity-Technologies/ml-agents/blob/release_18_docs/" +
-        "docs/Learning-Environment-Design-Agents.md")]
+             "docs/Learning-Environment-Design-Agents.md")]
     [Serializable]
     [RequireComponent(typeof(BehaviorParameters))]
     public partial class Agent : MonoBehaviour, ISerializationCallbackReceiver, IActionReceiver, IHeuristicProvider
@@ -209,12 +211,8 @@ namespace Unity.MLAgents
             public int maxStep;
         }
 
-        [SerializeField]
-        [HideInInspector]
-        internal AgentParameters agentParameters;
-        [SerializeField]
-        [HideInInspector]
-        internal bool hasUpgradedFromAgentParameters;
+        [SerializeField] [HideInInspector] internal AgentParameters agentParameters;
+        [SerializeField] [HideInInspector] internal bool hasUpgradedFromAgentParameters;
 
         /// <summary>
         /// The maximum number of steps the agent takes before being done.
@@ -258,8 +256,8 @@ namespace Unity.MLAgents
         /// **Note:** in general, you should limit the differences between the code you execute
         /// during training and the code you run during inference.
         /// </example>
-        [FormerlySerializedAs("maxStep")]
-        [HideInInspector] public int MaxStep;
+        [FormerlySerializedAs("maxStep")] [HideInInspector]
+        public int MaxStep;
 
         /// Current Agent information (message sent to Brain).
         AgentInfo m_Info;
@@ -319,11 +317,6 @@ namespace Unity.MLAgents
         /// VectorSensor which is written to by AddVectorObs
         /// </summary>
         internal VectorSensor collectObservationsSensor;
-
-        /// <summary>
-        /// StackingSensor which is written to by AddVectorObs
-        /// </summary>
-        internal StackingSensor stackedCollectObservationsSensor;
 
         private RecursionChecker m_CollectObservationsChecker = new RecursionChecker("CollectObservations");
         private RecursionChecker m_OnEpisodeBeginChecker = new RecursionChecker("OnEpisodeBegin");
@@ -398,6 +391,7 @@ namespace Unity.MLAgents
             {
                 MaxStep = agentParameters.maxStep;
             }
+
             hasUpgradedFromAgentParameters = true;
         }
 
@@ -429,6 +423,7 @@ namespace Unity.MLAgents
             {
                 MaxStep = agentParameters.maxStep;
             }
+
             hasUpgradedFromAgentParameters = true;
         }
 
@@ -444,6 +439,7 @@ namespace Unity.MLAgents
             {
                 return;
             }
+
             m_Initialized = true;
 
             // Grab the "static" properties for the Agent.
@@ -561,6 +557,7 @@ namespace Unity.MLAgents
                 // The Agent was already marked as Done and should not be notified again
                 return;
             }
+
             m_Info.episodeId = m_EpisodeId;
             m_Info.reward = m_Reward;
             m_Info.groupReward = m_GroupReward;
@@ -573,6 +570,7 @@ namespace Unity.MLAgents
             {
                 CollectObservations(collectObservationsSensor);
             }
+
             // Request the last decision with no callbacks
             // We request a decision so Python knows the Agent is done immediately
             m_Brain?.RequestDecision(m_Info, sensors);
@@ -634,6 +632,7 @@ namespace Unity.MLAgents
                 // If everything is the same, don't make any changes.
                 return;
             }
+
             NotifyAgentDone(DoneReason.Disabled);
             m_PolicyFactory.Model = model;
             m_PolicyFactory.InferenceDevice = inferenceDevice;
@@ -649,6 +648,7 @@ namespace Unity.MLAgents
                 // happen in LazyInitialize later.
                 return;
             }
+
             m_Brain?.Dispose();
             m_Brain = m_PolicyFactory.GeneratePolicy(m_ActuatorManager.GetCombinedActionSpec(), m_ActuatorManager);
         }
@@ -875,7 +875,9 @@ namespace Unity.MLAgents
         ///
         /// [GameObject]: https://docs.unity3d.com/Manual/GameObjects.html
         /// </remarks>
-        public virtual void Initialize() { }
+        public virtual void Initialize()
+        {
+        }
 
         /// <summary>
         /// Implement <see cref="Heuristic"/> to choose an action for this agent using a custom heuristic.
@@ -951,6 +953,7 @@ namespace Unity.MLAgents
             {
                 m_PolicyFactory = GetComponent<BehaviorParameters>();
             }
+
             if (m_PolicyFactory.ObservableAttributeHandling != ObservableAttributeOptions.Ignore)
             {
                 var excludeInherited =
@@ -986,9 +989,9 @@ namespace Unity.MLAgents
                 collectObservationsSensor = new VectorSensor(param.VectorObservationSize);
                 if (param.NumStackedVectorObservations > 1)
                 {
-                    stackedCollectObservationsSensor = new StackingSensor(
+                    var stackingSensor = new StackingSensor(
                         collectObservationsSensor, param.NumStackedVectorObservations);
-                    sensors.Add(stackedCollectObservationsSensor);
+                    sensors.Add(stackingSensor);
                 }
                 else
                 {
@@ -1058,7 +1061,7 @@ namespace Unity.MLAgents
             if (!m_Initialized)
             {
                 throw new UnityAgentsException("Call to SendInfoToBrain when Agent hasn't been initialized." +
-                    "Please ensure that you are calling 'base.OnEnable()' if you have overridden OnEnable.");
+                                               "Please ensure that you are calling 'base.OnEnable()' if you have overridden OnEnable.");
             }
 
             if (m_Brain == null)
@@ -1083,6 +1086,7 @@ namespace Unity.MLAgents
                     CollectObservations(collectObservationsSensor);
                 }
             }
+
             using (TimerStack.Instance.Scoped("WriteActionMask"))
             {
                 m_ActuatorManager.WriteActionMask();
@@ -1185,17 +1189,6 @@ namespace Unity.MLAgents
         }
 
         /// <summary>
-        /// Returns a read-only view of the stacked observations that were generated in
-        /// <see cref="CollectObservations(VectorSensor)"/>. This is mainly useful inside of a
-        /// <see cref="Heuristic(in ActionBuffers)"/> method to avoid recomputing the observations.
-        /// </summary>
-        /// <returns>A read-only view of the stacked observations list.</returns>
-        public ReadOnlyCollection<float> GetStackedObservations()
-        {
-            return stackedCollectObservationsSensor.GetStackedObservations();
-        }
-
-        /// <summary>
         /// Implement `WriteDiscreteActionMask()` to collects the masks for discrete
         /// actions. When using discrete actions, the agent will not perform the masked
         /// action.
@@ -1212,7 +1205,9 @@ namespace Unity.MLAgents
         /// [Agents - Actions]: https://github.com/Unity-Technologies/ml-agents/blob/release_18_docs/docs/Learning-Environment-Design-Agents.md#actions
         /// </remarks>
         /// <seealso cref="IActionReceiver.OnActionReceived"/>
-        public virtual void WriteDiscreteActionMask(IDiscreteActionMask actionMask) { }
+        public virtual void WriteDiscreteActionMask(IDiscreteActionMask actionMask)
+        {
+        }
 
         /// <summary>
         /// Implement `OnActionReceived()` to specify agent behavior at every step, based
@@ -1280,7 +1275,9 @@ namespace Unity.MLAgents
         /// <param name="actions">
         /// Struct containing the buffers of actions to be executed at this step.
         /// </param>
-        public virtual void OnActionReceived(ActionBuffers actions) { }
+        public virtual void OnActionReceived(ActionBuffers actions)
+        {
+        }
 
         /// <summary>
         /// Implement `OnEpisodeBegin()` to set up an Agent instance at the beginning
@@ -1288,7 +1285,9 @@ namespace Unity.MLAgents
         /// </summary>
         /// <seealso cref="Initialize"/>
         /// <seealso cref="EndEpisode"/>
-        public virtual void OnEpisodeBegin() { }
+        public virtual void OnEpisodeBegin()
+        {
+        }
 
         /// <summary>
         /// Gets the most recent ActionBuffer for this agent.
@@ -1370,6 +1369,7 @@ namespace Unity.MLAgents
             {
                 ResetData();
             }
+
             var actions = m_Brain?.DecideAction() ?? new ActionBuffers();
             m_Info.CopyActions(actions);
             m_ActuatorManager.UpdateActions(actions);

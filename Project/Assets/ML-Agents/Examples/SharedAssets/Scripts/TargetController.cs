@@ -1,7 +1,8 @@
-using UnityEngine;
-using Random = UnityEngine.Random;
+using System;
 using Unity.MLAgents;
+using UnityEngine;
 using UnityEngine.Events;
+using Random = UnityEngine.Random;
 
 namespace Unity.MLAgentsExamples
 {
@@ -12,39 +13,37 @@ namespace Unity.MLAgentsExamples
     /// </summary>
     public class TargetController : MonoBehaviour
     {
+        [Header("Collider Tag To Detect")] public string tagToDetect = "agent"; //collider tag to detect
 
-        [Header("Collider Tag To Detect")]
-        public string tagToDetect = "agent"; //collider tag to detect 
-
-        [Header("Target Placement")]
-        public float spawnRadius; //The radius in which a target can be randomly spawned.
+        [Header("Target Placement")] public float spawnRadius; //The radius in which a target can be randomly spawned.
         public bool respawnIfTouched; //Should the target respawn to a different position when touched
 
         [Header("Target Fell Protection")]
         public bool respawnIfFallsOffPlatform = true; //If the target falls off the platform, reset the position.
-        public float fallDistance = 5; //distance below the starting height that will trigger a respawn 
+
+        public float fallDistance = 5; //distance below the starting height that will trigger a respawn
 
 
         private Vector3 m_startingPos; //the starting position of the target
+#pragma warning disable 169
         private Agent m_agentTouching; //the agent currently touching the target
+#pragma warning restore 169
 
-        [System.Serializable]
+        [Serializable]
         public class TriggerEvent : UnityEvent<Collider>
         {
         }
 
-        [Header("Trigger Callbacks")]
-        public TriggerEvent onTriggerEnterEvent = new TriggerEvent();
+        [Header("Trigger Callbacks")] public TriggerEvent onTriggerEnterEvent = new TriggerEvent();
         public TriggerEvent onTriggerStayEvent = new TriggerEvent();
         public TriggerEvent onTriggerExitEvent = new TriggerEvent();
 
-        [System.Serializable]
+        [Serializable]
         public class CollisionEvent : UnityEvent<Collision>
         {
         }
 
-        [Header("Collision Callbacks")]
-        public CollisionEvent onCollisionEnterEvent = new CollisionEvent();
+        [Header("Collision Callbacks")] public CollisionEvent onCollisionEnterEvent = new CollisionEvent();
         public CollisionEvent onCollisionStayEvent = new CollisionEvent();
         public CollisionEvent onCollisionExitEvent = new CollisionEvent();
 

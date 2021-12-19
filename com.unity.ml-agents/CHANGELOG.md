@@ -6,49 +6,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-### Major Changes
-
-#### com.unity.ml-agents / com.unity.ml-agents.extensions (C#)
-- Added a new feature to replicate training areas dynamically during runtime. (#5568)
-- Update Barracuda to 2.3.1-preview (#5591)
-
-#### ml-agents / ml-agents-envs / gym-unity (Python)
-
-### Minor Changes
-
-#### com.unity.ml-agents / com.unity.ml-agents.extensions (C#)
-- Added the capacity to initialize behaviors from any checkpoint and not just the latest one (#5525)
-- Added the ability to get a read-only view of the stacked observations (#5523)
-
-#### ml-agents / ml-agents-envs / gym-unity (Python)
-- Set gym version in gym-unity to gym release 0.20.0 (#5540)
-- Added support for having `beta`, `epsilon`, and `learning rate` on separate schedules (affects only PPO and POCA). (#5538)
-- Changed default behavior to restart crashed Unity environments rather than exiting. (#5553)
-  - Rate & lifetime limits on this are configurable via 3 new yaml options
-    1. env_params.max_lifetime_restarts (--max-lifetime-restarts) [default=10]
-    2. env_params.restarts_rate_limit_n (--restarts-rate-limit-n) [default=1]
-    3. env_params.restarts_rate_limit_period_s (--restarts-rate-limit-period-s) [default=60]
-- Deterministic action selection is now supported during training and inference(#5619)
-    - Added a new `--deterministic` cli flag to deterministically select the most probable actions in policy. The same thing can
-      be achieved by adding `deterministic: true` under `network_settings` of the run options configuration.(#5597)
-    - Extra tensors are now serialized to support deterministic action selection in onnx. (#5593)
-    - Support inference with deterministic action selection in editor (#5599)
-- Added minimal analytics collection to LL-API (#5511)
-
-### Bug Fixes
-#### com.unity.ml-agents / com.unity.ml-agents.extensions (C#)
-- Fixed a bug where ml-agents code wouldn't compile on platforms that didn't support analytics (PS4/5, XBoxOne) (#5628)
-
-#### ml-agents / ml-agents-envs / gym-unity (Python)
-- Fixed a bug where the critics were not being normalized during training. (#5595)
-- Fixed the bug where curriculum learning would crash because of the incorrect run_options parsing. (#5586)
-- Fixed a bug in multi-agent cooperative training where agents might not receive all of the states of
-terminated teammates. (#5441)
-- Fixed wrong attribute name in argparser for torch device option (#5433)(#5467)
-- Fixed conflicting CLI and yaml options regarding resume & initialize_from (#5495)
-- Fixed failing tests for gym-unity due to gym 0.20.0 release (#5540)
-- Fixed a bug in VAIL where the variational bottleneck was not properly passing gradients (#5546)
 
 ## [2.1.0-exp.1] - 2021-06-09
 ### Minor Changes
@@ -56,12 +13,10 @@ terminated teammates. (#5441)
 - update Barracuda to 2.0.0-pre.3. (#5385)
 - Fixed NullReferenceException when adding Behavior Parameters with no Agent. (#5382)
 - Add stacking option in Editor for `VectorSensorComponent`. (#5376)
-
 #### ml-agents / ml-agents-envs / gym-unity (Python)
 - Lock cattrs dependency version to 1.6. (#5397)
 - Added a fully connected visual encoder for environments with very small image inputs. (#5351)
 - Colab notebooks illustrating the use of the Python API are now part of the repository. (#5399)
-
 ### Bug Fixes
 #### com.unity.ml-agents / com.unity.ml-agents.extensions (C#)
 - RigidBodySensorComponent now displays a warning if it's used in a way that won't generate useful observations. (#5387)
