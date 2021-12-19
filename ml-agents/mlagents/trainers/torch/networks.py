@@ -312,6 +312,9 @@ class MultiAgentNetworkBody(torch.nn.Module):
             self.lstm = LSTM(self.h_size, self.m_size)
         else:
             self.lstm = None  # type: ignore
+        self._current_max_agents = torch.nn.Parameter(
+            torch.as_tensor(1), requires_grad=False
+        )
 
     @property
     def memory_size(self) -> int:
@@ -404,12 +407,23 @@ class MultiAgentNetworkBody(torch.nn.Module):
         encoded_entity = torch.cat(self_attn_inputs, dim=1)
         encoded_state = self.self_attn(encoded_entity, self_attn_masks)
 
+        flipped_masks = 1 - torch.cat(self_attn_masks, dim=1)
+        num_agents = torch.sum(flipped_masks, dim=1, keepdim=True)
+        if torch.max(num_agents).item() > self._current_max_agents:
+            self._current_max_agents = torch.nn.Parameter(
+                torch.as_tensor(torch.max(num_agents).item()), requires_grad=False
+            )
+
+        # num_agents will be -1 for a single agent and +1 when the current maximum is reached
+        num_agents = num_agents * 2.0 / self._current_max_agents - 1
+
         encoding = self.linear_encoder(encoded_state)
         if self.use_lstm:
             # Resize to (batch, sequence length, encoding size)
             encoding = encoding.reshape([-1, sequence_length, self.h_size])
             encoding, memories = self.lstm(encoding, memories)
             encoding = encoding.reshape([-1, self.m_size // 2])
+        encoding = torch.cat([encoding, num_agents], dim=1)
         return encoding, memories
 
 
@@ -603,6 +617,7 @@ class SimpleActor(nn.Module, Actor):
             action_spec,
             conditional_sigma=conditional_sigma,
             tanh_squash=tanh_squash,
+            deterministic=network_settings.deterministic,
         )
 
     @property
@@ -661,12 +676,22 @@ class SimpleActor(nn.Module, Actor):
             cont_action_out,
             disc_action_out,
             action_out_deprecated,
+            deterministic_cont_action_out,
+            deterministic_disc_action_out,
         ) = self.action_model.get_action_out(encoding, masks)
         export_out = [self.version_number, self.memory_size_vector]
         if self.action_spec.continuous_size > 0:
-            export_out += [cont_action_out, self.continuous_act_size_vector]
+            export_out += [
+                cont_action_out,
+                self.continuous_act_size_vector,
+                deterministic_cont_action_out,
+            ]
         if self.action_spec.discrete_size > 0:
-            export_out += [disc_action_out, self.discrete_act_size_vector]
+            export_out += [
+                disc_action_out,
+                self.discrete_act_size_vector,
+                deterministic_disc_action_out,
+            ]
         if self.network_body.memory_size > 0:
             export_out += [memories_out]
         return tuple(export_out)

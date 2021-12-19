@@ -4,7 +4,7 @@
 
 [![docs badge](https://img.shields.io/badge/docs-reference-blue.svg)](https://github.com/Unity-Technologies/ml-agents/tree/release_18_docs/docs/)
 
-[![license badge](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE)
+[![license badge](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE.md)
 
 ([latest release](https://github.com/Unity-Technologies/ml-agents/releases/tag/latest_release))
 ([all releases](https://github.com/Unity-Technologies/ml-agents/releases))
@@ -91,7 +91,7 @@ https://github.com/Unity-Technologies/ml-agents.
 ## Additional Resources
 
 We have a Unity Learn course,
-[ML-Agents: Hummingsbird](https://learn.unity.com/course/ml-agents-hummingbirds),
+[ML-Agents: Hummingbirds](https://learn.unity.com/course/ml-agents-hummingbirds),
 that provides a gentle introduction to Unity and the ML-Agents Toolkit.
 
 We've also partnered with
@@ -101,6 +101,8 @@ on how to implement and use the ML-Agents Toolkit.
 
 We have also published a series of blog posts that are relevant for ML-Agents:
 
+- (July 12, 2021)
+  [ML-Agents plays Dodgeball](https://blog.unity.com/technology/ml-agents-plays-dodgeball)
 - (May 5, 2021)
   [ML-Agents v2.0 release: Now supports training complex cooperative behaviors](https://blogs.unity3d.com/2021/05/05/ml-agents-v2-0-release-now-supports-training-complex-cooperative-behaviors/)
 - (December 28, 2020)
@@ -175,7 +177,7 @@ package by replying to
 Your opinion matters a great deal to us. Only by hearing your thoughts on the
 Unity ML-Agents Toolkit can we continue to improve and grow. Please take a few
 minutes to
-[let us know about it](https://github.com/Unity-Technologies/ml-agents/issues/1454).
+[let us know about it](https://unitysoftware.co1.qualtrics.com/jfe/form/SV_55pQKCZ578t0kbc).
 
 For any other questions or feedback, connect directly with the ML-Agents team at
 ml-agents@unity3d.com.
@@ -188,4 +190,4 @@ Please refer to "Information that is passively collected by Unity" in the
 
 ## License
 
-[Apache License 2.0](LICENSE)
+[Apache License 2.0](LICENSE.md)

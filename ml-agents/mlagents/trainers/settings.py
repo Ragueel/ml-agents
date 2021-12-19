@@ -44,6 +44,33 @@ def check_and_structure(key: str, value: Any, class_type: type) -> Any:
     return cattr.structure(value, attr_fields_dict[key].type)
 
 
+class TrainerType(Enum):
+    PPO: str = "ppo"
+    SAC: str = "sac"
+    POCA: str = "poca"
+
+    def to_settings(self) -> type:
+        _mapping = {
+            TrainerType.PPO: PPOSettings,
+            TrainerType.SAC: SACSettings,
+            TrainerType.POCA: POCASettings,
+        }
+        return _mapping[self]
+
+
+def check_hyperparam_schedules(val: Dict, trainer_type: TrainerType) -> Dict:
+    # Check if beta and epsilon are set. If not, set to match learning rate schedule.
+    if trainer_type is TrainerType.PPO or trainer_type is TrainerType.POCA:
+        if "beta_schedule" not in val.keys() and "learning_rate_schedule" in val.keys():
+            val["beta_schedule"] = val["learning_rate_schedule"]
+        if (
+            "epsilon_schedule" not in val.keys()
+            and "learning_rate_schedule" in val.keys()
+        ):
+            val["epsilon_schedule"] = val["learning_rate_schedule"]
+    return val
+
+
 def strict_to_cls(d: Mapping, t: type) -> Any:
     if not isinstance(d, Mapping):
         raise TrainerConfigError(f"Unsupported config {d} for {t.__name__}.")
@@ -91,6 +118,8 @@ class EncoderType(Enum):
 class ScheduleType(Enum):
     CONSTANT = "constant"
     LINEAR = "linear"
+    # TODO add support for lesson based scheduling
+    # LESSON = "lesson"
 
 
 class ConditioningType(Enum):
@@ -122,6 +151,7 @@ class NetworkSettings:
     vis_encode_type: EncoderType = EncoderType.SIMPLE
     memory: Optional[MemorySettings] = None
     goal_conditioning_type: ConditioningType = ConditioningType.HYPER
+    deterministic: bool = parser.get_default("deterministic")
 
 
 @attr.s(auto_attribs=True)
@@ -151,6 +181,8 @@ class PPOSettings(HyperparamSettings):
     lambd: float = 0.95
     num_epoch: int = 3
     learning_rate_schedule: ScheduleType = ScheduleType.LINEAR
+    beta_schedule: ScheduleType = ScheduleType.LINEAR
+    epsilon_schedule: ScheduleType = ScheduleType.LINEAR
 
 
 @attr.s(auto_attribs=True)
@@ -608,20 +640,6 @@ class SelfPlaySettings:
     initial_elo: float = 1200.0
 
 
-class TrainerType(Enum):
-    PPO: str = "ppo"
-    SAC: str = "sac"
-    POCA: str = "poca"
-
-    def to_settings(self) -> type:
-        _mapping = {
-            TrainerType.PPO: PPOSettings,
-            TrainerType.SAC: SACSettings,
-            TrainerType.POCA: POCASettings,
-        }
-        return _mapping[self]
-
-
 @attr.s(auto_attribs=True)
 class TrainerSettings(ExportableSettings):
     default_override: ClassVar[Optional["TrainerSettings"]] = None
@@ -700,6 +718,9 @@ class TrainerSettings(ExportableSettings):
                         "Hyperparameters were specified but no trainer_type was given."
                     )
                 else:
+                    d_copy[key] = check_hyperparam_schedules(
+                        val, d_copy["trainer_type"]
+                    )
                     d_copy[key] = strict_to_cls(
                         d_copy[key], TrainerType(d_copy["trainer_type"]).to_settings()
                     )
@@ -733,7 +754,7 @@ class TrainerSettings(ExportableSettings):
                     f"Please add an entry in the configuration file for {key}, or set default_settings."
                 )
             else:
-                logger.warn(
+                logger.warning(
                     f"Behavior name {key} does not match any behaviors specified "
                     f"in the trainer configuration file. A default configuration will be used."
                 )
@@ -769,6 +790,32 @@ class CheckpointSettings:
     def run_logs_dir(self) -> str:
         return os.path.join(self.write_path, "run_logs")
 
+    def prioritize_resume_init(self) -> None:
+        """Prioritize explicit command line resume/init over conflicting yaml options.
+        if both resume/init are set at one place use resume"""
+        _non_default_args = DetectDefault.non_default_args
+        if "resume" in _non_default_args:
+            if self.initialize_from is not None:
+                logger.warning(
+                    f"Both 'resume' and 'initialize_from={self.initialize_from}' are set!"
+                    f" Current run will be resumed ignoring initialization."
+                )
+                self.initialize_from = parser.get_default("initialize_from")
+        elif "initialize_from" in _non_default_args:
+            if self.resume:
+                logger.warning(
+                    f"Both 'resume' and 'initialize_from={self.initialize_from}' are set!"
+                    f" {self.run_id} is initialized_from {self.initialize_from} and resume will be ignored."
+                )
+                self.resume = parser.get_default("resume")
+        elif self.resume and self.initialize_from is not None:
+            # no cli args but both are set in yaml file
+            logger.warning(
+                f"Both 'resume' and 'initialize_from={self.initialize_from}' are set in yaml file!"
+                f" Current run will be resumed ignoring initialization."
+            )
+            self.initialize_from = parser.get_default("initialize_from")
+
 
 @attr.s(auto_attribs=True)
 class EnvironmentSettings:
@@ -776,12 +823,23 @@ class EnvironmentSettings:
     env_args: Optional[List[str]] = parser.get_default("env_args")
     base_port: int = parser.get_default("base_port")
     num_envs: int = attr.ib(default=parser.get_default("num_envs"))
+    num_areas: int = attr.ib(default=parser.get_default("num_areas"))
     seed: int = parser.get_default("seed")
+    max_lifetime_restarts: int = parser.get_default("max_lifetime_restarts")
+    restarts_rate_limit_n: int = parser.get_default("restarts_rate_limit_n")
+    restarts_rate_limit_period_s: int = parser.get_default(
+        "restarts_rate_limit_period_s"
+    )
 
     @num_envs.validator
     def validate_num_envs(self, attribute, value):
         if value > 1 and self.env_path is None:
             raise ValueError("num_envs must be 1 if env_path is not set.")
+
+    @num_areas.validator
+    def validate_num_area(self, attribute, value):
+        if value <= 0:
+            raise ValueError("num_areas must be set to a positive number >= 1.")
 
 
 @attr.s(auto_attribs=True)
@@ -797,7 +855,7 @@ class EngineSettings:
 
 @attr.s(auto_attribs=True)
 class TorchSettings:
-    device: Optional[str] = parser.get_default("torch_device")
+    device: Optional[str] = parser.get_default("device")
 
 
 @attr.s(auto_attribs=True)
@@ -871,9 +929,11 @@ class RunOptions(ExportableSettings):
                         key
                     )
                 )
+
         # Override with CLI args
         # Keep deprecated --load working, TODO: remove
         argparse_args["resume"] = argparse_args["resume"] or argparse_args["load_model"]
+
         for key, val in argparse_args.items():
             if key in DetectDefault.non_default_args:
                 if key in attr.fields_dict(CheckpointSettings):
@@ -888,10 +948,21 @@ class RunOptions(ExportableSettings):
                     configured_dict[key] = val
 
         final_runoptions = RunOptions.from_dict(configured_dict)
+        final_runoptions.checkpoint_settings.prioritize_resume_init()
         # Need check to bypass type checking but keep structure on dict working
         if isinstance(final_runoptions.behaviors, TrainerSettings.DefaultTrainerDict):
             # configure whether or not we should require all behavior names to be found in the config YAML
             final_runoptions.behaviors.set_config_specified(_require_all_behaviors)
+
+        _non_default_args = DetectDefault.non_default_args
+
+        # Prioritize the deterministic mode from the cli for deterministic actions.
+        if "deterministic" in _non_default_args:
+            for behaviour in final_runoptions.behaviors.keys():
+                final_runoptions.behaviors[
+                    behaviour
+                ].network_settings.deterministic = argparse_args["deterministic"]
+
         return final_runoptions
 
     @staticmethod

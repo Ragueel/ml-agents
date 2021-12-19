@@ -60,7 +60,8 @@ class TorchPOCAOptimizer(TorchOptimizer):
             else:
                 encoding_size = network_settings.hidden_units
 
-            self.value_heads = ValueHeads(stream_names, encoding_size, 1)
+            self.value_heads = ValueHeads(stream_names, encoding_size + 1, 1)
+            # The + 1 is for the normalized number of agents
 
         @property
         def memory_size(self) -> int:
@@ -95,6 +96,7 @@ class TorchPOCAOptimizer(TorchOptimizer):
                 memories=memories,
                 sequence_length=sequence_length,
             )
+
             value_outputs, critic_mem_out = self.forward(
                 encoding, memories, sequence_length
             )
@@ -121,6 +123,7 @@ class TorchPOCAOptimizer(TorchOptimizer):
                 memories=memories,
                 sequence_length=sequence_length,
             )
+
             value_outputs, critic_mem_out = self.forward(
                 encoding, memories, sequence_length
             )
@@ -169,13 +172,13 @@ class TorchPOCAOptimizer(TorchOptimizer):
             self.trainer_settings.max_steps,
         )
         self.decay_epsilon = ModelUtils.DecayedValue(
-            self.hyperparameters.learning_rate_schedule,
+            self.hyperparameters.epsilon_schedule,
             self.hyperparameters.epsilon,
             0.1,
             self.trainer_settings.max_steps,
         )
         self.decay_beta = ModelUtils.DecayedValue(
-            self.hyperparameters.learning_rate_schedule,
+            self.hyperparameters.beta_schedule,
             self.hyperparameters.beta,
             1e-5,
             self.trainer_settings.max_steps,
@@ -319,6 +322,7 @@ class TorchPOCAOptimizer(TorchOptimizer):
             loss_masks,
             decay_eps,
         )
+
         loss = (
             policy_loss
             + 0.5 * (value_loss + 0.5 * baseline_loss)

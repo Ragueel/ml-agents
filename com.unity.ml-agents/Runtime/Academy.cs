@@ -183,6 +183,11 @@ namespace Unity.MLAgents
             set { m_InferenceSeed = value; }
         }
 
+        // Number of training areas to instantiate
+        int m_NumAreas;
+
+        public int NumAreas => m_NumAreas;
+
         /// <summary>
         /// Returns the RLCapabilities of the python client that the unity process is connected to.
         /// </summary>
@@ -451,6 +456,7 @@ namespace Unity.MLAgents
                         UnityEngine.Random.InitState(unityRlInitParameters.seed);
                         // We might have inference-only Agents, so set the seed for them too.
                         m_InferenceSeed = unityRlInitParameters.seed;
+                        m_NumAreas = unityRlInitParameters.numAreas;
                         TrainerCapabilities = unityRlInitParameters.TrainerCapabilities;
                         TrainerCapabilities.WarnOnPythonMissingBaseRLCapabilities();
                     }
@@ -610,14 +616,16 @@ namespace Unity.MLAgents
         /// <param name="inferenceDevice">
         /// The inference device (CPU or GPU) the ModelRunner will use.
         /// </param>
+        /// <param name="deterministicInference"> Inference only: set to true if the action selection from model should be
+        /// Deterministic. </param>
         /// <returns> The ModelRunner compatible with the input settings.</returns>
         internal ModelRunner GetOrCreateModelRunner(
-            NNModel model, ActionSpec actionSpec, InferenceDevice inferenceDevice)
+            NNModel model, ActionSpec actionSpec, InferenceDevice inferenceDevice, bool deterministicInference = false)
         {
             var modelRunner = m_ModelRunners.Find(x => x.HasModel(model, inferenceDevice));
             if (modelRunner == null)
             {
-                modelRunner = new ModelRunner(model, actionSpec, inferenceDevice, m_InferenceSeed);
+                modelRunner = new ModelRunner(model, actionSpec, inferenceDevice, m_InferenceSeed, deterministicInference);
                 m_ModelRunners.Add(modelRunner);
                 m_InferenceSeed++;
             }
