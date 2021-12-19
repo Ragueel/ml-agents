@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Shooter.Scripts.GameUI
@@ -17,10 +18,12 @@ namespace Shooter.Scripts.GameUI
 
         private void OnExitClick()
         {
+            Application.Quit();
         }
 
         private void OnPlayClick()
         {
+            SceneManager.LoadScene(GameScenes.GamePlay);
         }
     }
 }

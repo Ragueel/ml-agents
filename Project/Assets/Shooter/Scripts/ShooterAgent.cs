@@ -27,7 +27,7 @@ namespace Shooter.Scripts
         private IShooterController _shooterController;
         private float _timePassed = 0;
 
-        private void Start()
+        private void Awake()
         {
             _raycastObsCollector = new RaycastObservationCollector(_agentId);
 
