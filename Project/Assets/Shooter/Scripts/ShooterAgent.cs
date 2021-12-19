@@ -43,8 +43,6 @@ namespace Shooter.Scripts
 
             transform.localPosition = SpawnPointsController.Instance.GetRandomSpawnPoint();
 
-            Debug.Log($"Episode begin {_agentId}");
-
             _timePassed = 0f;
             _rb.isKinematic = false;
             _collider.enabled = true;
@@ -166,19 +164,6 @@ namespace Shooter.Scripts
             }
 
             observationCollectionData.Layer = LayerMask.GetMask("Projectiles") | LayerMask.GetMask("Default");
-            // raycastData = _raycastObsCollector.CollectFor(observationCollectionData);
-            //
-            // foreach (var data in raycastData)
-            // {
-            //     Vector3 dataCheckPosition = data.CheckPosition + data.Distance * data.Direction;
-            //     if (data.HitType == Constants.HitTypes.Projectile)
-            //     {
-            //         Debug.DrawRay(dataCheckPosition, Vector3.up * 9, Color.red);
-            //     }
-            //
-            //     sensor.AddObservation(dataCheckPosition);
-            //     sensor.AddObservation(data.HitType);
-            // }
         }
 
         private void OnDrawGizmos()
