@@ -179,11 +179,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 560725b1c5e845fa8d70f05fc6d461ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _teamColors:
+  - {r: 0.2928735, g: 1, b: 0.16509432, a: 0}
   _dummyPrefabs:
   - {fileID: 4724276028435501308, guid: 25defcf57634f86448c4c247cd17c15f, type: 3}
   - {fileID: 1832397044411656373, guid: 468cbb25f51a4594998d9565b6125193, type: 3}
   - {fileID: 4724276028435501308, guid: 25defcf57634f86448c4c247cd17c15f, type: 3}
   _isTrainMode: 0
+  _endGameUI: {fileID: 0}
 --- !u!1 &763510482
 GameObject:
   m_ObjectHideFlags: 0
@@ -616,7 +619,7 @@ PrefabInstance:
     - target: {fileID: 7731660155489328598, guid: 04a955d0d469c8743a596d682879269d,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 8.68
+      value: 1.37
       objectReference: {fileID: 0}
     - target: {fileID: 7731660155489328598, guid: 04a955d0d469c8743a596d682879269d,
         type: 3}
@@ -626,7 +629,7 @@ PrefabInstance:
     - target: {fileID: 7731660155489328598, guid: 04a955d0d469c8743a596d682879269d,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 10.6
+      value: 1.79
       objectReference: {fileID: 0}
     - target: {fileID: 7731660155489328598, guid: 04a955d0d469c8743a596d682879269d,
         type: 3}
@@ -1040,6 +1043,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 7731660155489328594, guid: 04a955d0d469c8743a596d682879269d,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7731660155489328598, guid: 04a955d0d469c8743a596d682879269d,
         type: 3}
