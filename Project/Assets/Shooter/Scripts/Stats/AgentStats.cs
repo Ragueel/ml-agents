@@ -23,6 +23,8 @@ namespace Shooter.Scripts
 
         public float RotationSpeed => _rotationSpeed;
 
+        public int MAXHp => _maxHp;
+
         public bool IsDead()
         {
             return CurrentHp <= 0;

@@ -1,4 +1,5 @@
 ﻿using Shooter.Scripts.GameModes;
+using Shooter.Scripts.GameUI;
 using Shooter.Scripts.Shooting;
 using Shooter.Scripts.Shooting.Projectiles;
 using Unity.MLAgents;
@@ -13,8 +14,8 @@ namespace Shooter.Scripts
         [SerializeField] private int _agentId;
         [SerializeField] private AgentStats _agentStats;
         [SerializeField] private ProjectileController _projectilePrefab;
-
         [SerializeField] private Transform _shootPoint;
+        [SerializeField] private HealthBarController _healthBar;
 
         private RaycastObservationCollector _raycastObsCollector;
 
@@ -46,6 +47,11 @@ namespace Shooter.Scripts
             _timePassed = 0f;
             _rb.isKinematic = false;
             _collider.enabled = true;
+
+            if (_healthBar)
+            {
+                _healthBar.SetHealth(1f);
+            }
 
             _agentStats.Reset();
 
@@ -204,6 +210,11 @@ namespace Shooter.Scripts
             _agentStats.CurrentHp -= projectileData.DamageAmount;
 
             AddReward(-Rewards.HitReward * 0.05f);
+
+            if (_healthBar != null)
+            {
+                _healthBar.SetHealth((float) _agentStats.CurrentHp / _agentStats.MAXHp);
+            }
 
             if (_agentStats.IsDead())
             {
