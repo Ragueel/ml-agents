@@ -66,7 +66,8 @@ namespace Shooter.Scripts
             _timePassed += Time.fixedDeltaTime;
             if (_timePassed > 60f)
             {
-                AddReward(-0.1f);
+                AddReward(Rewards.TimeoutPenalty);
+
                 if (_isTrainMode)
                 {
                     EndEpisode();
@@ -86,7 +87,6 @@ namespace Shooter.Scripts
 
             var contActions = actions.ContinuousActions;
 
-
             float movement = contActions[0];
             float rotation = contActions[1];
 
@@ -99,7 +99,7 @@ namespace Shooter.Scripts
 
             if (isAgentAhead)
             {
-                AddReward(0.05f * Time.fixedDeltaTime);
+                AddReward(Rewards.ShootCorrectReward * Time.fixedDeltaTime);
             }
 
             var discreteActions = actions.DiscreteActions;
@@ -111,11 +111,11 @@ namespace Shooter.Scripts
             {
                 if (isAgentAhead)
                 {
-                    AddReward(0.05f);
+                    AddReward(Rewards.ShootCorrectReward);
                 }
                 else
                 {
-                    AddReward(-0.005f);
+                    AddReward(Rewards.ShootIncorrectPenalty);
                 }
 
                 _agentStats.LastShotTime = 0f;
@@ -177,8 +177,6 @@ namespace Shooter.Scripts
                 sensor.AddObservation(dataCheckPosition);
                 sensor.AddObservation(data.HitType);
             }
-
-            observationCollectionData.Layer = LayerMask.GetMask("Projectiles") | LayerMask.GetMask("Default");
         }
 
         private void OnDrawGizmos()
