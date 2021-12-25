@@ -11,6 +11,8 @@ namespace Shooter.Scripts
 {
     public class ShooterAgent : Agent, IDamageable
     {
+        #region Properties
+
         [SerializeField] private int _agentId;
         [SerializeField] private AgentStats _agentStats;
         [SerializeField] private ProjectileController _projectilePrefab;
@@ -27,6 +29,8 @@ namespace Shooter.Scripts
         private IShooterController _shooterController;
         private float _timePassed = 0;
 
+        #endregion
+
         private void Awake()
         {
             _raycastObsCollector = new RaycastObservationCollector(_agentId);
@@ -37,6 +41,7 @@ namespace Shooter.Scripts
             _shooterController = new SimpleProjectileShooterController(_projectilePrefab);
         }
 
+        // What to do when simulation starts. Usually it is resetting the agent. And randomizing the environment.
         public override void OnEpisodeBegin()
         {
             if (transform.localPosition.y < 0)
@@ -61,6 +66,7 @@ namespace Shooter.Scripts
             ShooterGameMode.Instance.Reset();
         }
 
+        // Handles how agent responds to the actions that it receives from the neural network.
         public override void OnActionReceived(ActionBuffers actions)
         {
             _timePassed += Time.fixedDeltaTime;
@@ -135,6 +141,7 @@ namespace Shooter.Scripts
             _agentStats.Tick();
         }
 
+        // Controls for the human interaction.
         public override void Heuristic(in ActionBuffers actionsOut)
         {
             var contActionsOut = actionsOut.ContinuousActions;
@@ -145,6 +152,7 @@ namespace Shooter.Scripts
             discreteActions[0] = Input.GetButton("Fire1") ? 2 : 1;
         }
 
+        // Collects observations for the neural network.
         public override void CollectObservations(VectorSensor sensor)
         {
             var localPosition = transform.localPosition;
@@ -179,6 +187,7 @@ namespace Shooter.Scripts
             }
         }
 
+        // To Visualize some stuff.
         private void OnDrawGizmos()
         {
             if (_raycastObsCollector != null)
@@ -212,6 +221,7 @@ namespace Shooter.Scripts
             }
         }
 
+        // Handling game logic
         public void TakeDamage(ProjectileData projectileData)
         {
             _agentStats.CurrentHp -= projectileData.DamageAmount;
